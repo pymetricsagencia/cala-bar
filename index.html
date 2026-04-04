@@ -5,23 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cala Bar · Dashboard Financiero</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --accent:  #2463EB;
-  --accent2: #4f8aff;
-  --bg:     #0a0a0f;
-  --bg2:    #111118;
-  --bg3:    #18181f;
-  --bg4:    #1e1e28;
-  --border: rgba(255,255,255,0.07);
+  --accent:  #0DD9B8;
+  --accent2: #0ABD9E;
+  --bg:     #07101C;
+  --bg2:    #0C1828;
+  --bg3:    #0F1E30;
+  --bg4:    #152538;
+  --border: #1B2E44;
   --gold:   #f0b429;
   --red:    #f87171;
-  --green:  #34d399;
-  --text:   #e8e8f0;
-  --muted:  #6b6b80;
-  --font-display: 'Syne', sans-serif;
+  --green:  #0DD9B8;
+  --text:   #ECF2FC;
+  --muted:  #7A90B8;
+  --font-display: 'Outfit', sans-serif;
+  --font-serif:   'DM Serif Display', serif;
   --font-mono:    'DM Mono', monospace;
+  --blue:   #2463EB;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,27 +43,25 @@ header {
   padding: 1.5rem 2rem 1.2rem;
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;
-  background: linear-gradient(180deg, rgba(36,99,235,0.08) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(13,217,184,0.05) 0%, transparent 100%);
 }
 .logo-area { display: flex; align-items: center; gap: 0.8rem; }
 .logo-mark {
-  width: 40px; height: 40px; background: var(--accent); border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -1px;
-  font-family: var(--font-display);
+  width: 42px; height: 42px; flex-shrink: 0;
 }
-.logo-text h1 { font-size: 1rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; }
-.logo-text p  { font-size: 0.65rem; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.logo-mark svg { width: 42px; height: 42px; }
+.logo-text h1 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; letter-spacing: 0.02em; color: #fff; }
+.logo-text p  { font-size: 0.6rem; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.15em; text-transform: uppercase; }
 .header-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .last-update  { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
-.last-update span { color: var(--accent2); }
+.last-update span { color: var(--accent); }
 .btn {
   padding: 0.35rem 0.9rem; border-radius: 8px; border: 1px solid var(--border);
   background: var(--bg3); color: var(--text); cursor: pointer;
   font-family: var(--font-display); font-size: 0.75rem; font-weight: 600;
-  transition: border-color 0.15s;
+  transition: all 0.15s;
 }
-.btn:hover { border-color: rgba(255,255,255,0.2); }
+.btn:hover { border-color: var(--accent); background: rgba(13,217,184,0.06); }
 
 /* ── FILTERS ────────────────────────── */
 .filters {
@@ -88,7 +88,7 @@ select:focus { border-color: var(--accent); }
   font-family: var(--font-display); transition: all 0.15s;
 }
 .stab:hover { color: var(--text); }
-.stab.active { background: var(--bg3); border-color: rgba(255,255,255,0.15); color: var(--text); }
+.stab.active { background: var(--bg3); border-color: var(--accent); color: var(--accent); }
 .section { display: none; }
 .section.active { display: block; }
 
@@ -105,13 +105,13 @@ main { position: relative; z-index: 10; padding: 1.5rem 2rem; max-width: 1200px;
 .kpi-card.green { --card-accent: var(--green); }
 .kpi-card.red   { --card-accent: var(--red); }
 .kpi-card.gold  { --card-accent: var(--gold); }
-.kpi-card.blue  { --card-accent: var(--accent2); }
+.kpi-card.blue  { --card-accent: var(--blue); }
 .kpi-label { font-family: var(--font-mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.4rem; }
-.kpi-value { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+.kpi-value { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1; font-family: var(--font-display); }
 .kpi-card.green .kpi-value { color: var(--green); }
 .kpi-card.red   .kpi-value { color: var(--red); }
 .kpi-card.gold  .kpi-value { color: var(--gold); }
-.kpi-card.blue  .kpi-value { color: var(--accent2); }
+.kpi-card.blue  .kpi-value { color: var(--blue); }
 .kpi-sub { font-size: 0.65rem; color: var(--muted); margin-top: 0.3rem; font-family: var(--font-mono); }
 
 /* ── STATEMENT TABLE ────────────────── */
@@ -136,8 +136,8 @@ main { position: relative; z-index: 10; padding: 1.5rem 2rem; max-width: 1200px;
   border-top: 1px solid var(--border);
 }
 .stmt-section-hdr.cost { background: rgba(248,113,113,0.06); }
-.stmt-section-hdr.expense { background: rgba(240,180,41,0.06); }
-.stmt-section-hdr.tax { background: rgba(129,140,248,0.06); }
+.stmt-section-hdr.expense { background: rgba(13,217,184,0.04); }
+.stmt-section-hdr.tax { background: rgba(36,99,235,0.06); }
 
 .stmt-row {
   display: grid; grid-template-columns: 1fr 140px 80px;
@@ -183,11 +183,11 @@ main { position: relative; z-index: 10; padding: 1.5rem 2rem; max-width: 1200px;
 
 /* Saldo rows (financial) */
 .stmt-saldo {
-  background: rgba(36,99,235,0.06);
+  background: rgba(13,217,184,0.06);
   padding: 0.65rem 1.2rem;
 }
-.stmt-saldo .stmt-name { font-weight: 800; color: var(--accent2); }
-.stmt-saldo .stmt-amount { font-weight: 800; color: var(--accent2); }
+.stmt-saldo .stmt-name { font-weight: 800; color: var(--accent); }
+.stmt-saldo .stmt-amount { font-weight: 800; color: var(--accent); }
 
 /* Subcuenta rows */
 .stmt-subcuentas { display: none; }
@@ -200,8 +200,8 @@ main { position: relative; z-index: 10; padding: 1.5rem 2rem; max-width: 1200px;
   cursor: pointer;
   align-items: center;
 }
-.stmt-sub-row:hover { background: rgba(36,99,235,0.06); }
-.stmt-sub-row.selected { background: rgba(36,99,235,0.1); }
+.stmt-sub-row:hover { background: rgba(13,217,184,0.06); }
+.stmt-sub-row.selected { background: rgba(13,217,184,0.1); }
 .stmt-sub-row .stmt-name { display: flex; align-items: center; gap: 0.5rem; color: var(--text); font-weight: 500; }
 .stmt-sub-row .stmt-amount { text-align: right; font-family: var(--font-mono); font-size: 0.7rem; }
 .stmt-sub-row .stmt-pct { text-align: right; font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
@@ -237,7 +237,7 @@ tbody td { padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.0
 tbody tr:hover { background: rgba(255,255,255,0.02); }
 
 .pill { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.6rem; font-weight: 600; }
-.pill-green { background: rgba(52,211,153,0.12); color: var(--green); }
+.pill-green { background: rgba(13,217,184,0.12); color: var(--green); }
 .pill-red   { background: rgba(248,113,113,0.12); color: var(--red); }
 
 /* ── LOADER ─────────────────────────── */
@@ -267,7 +267,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
   font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted);
   position: relative; z-index: 10;
 }
-.footer a { color: var(--accent2); text-decoration: none; }
+.footer a { color: var(--accent); text-decoration: none; }
 
 /* ── RESPONSIVE ─────────────────────── */
 @media (max-width: 768px) {
@@ -306,16 +306,42 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 <body>
 
 <div id="loader">
-  <div class="loader-logo" id="loader-initials">CB</div>
+  <div class="loader-logo">
+    <svg width="28" height="28" viewBox="0 0 52 42" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="24" width="8" height="18" rx="2" fill="#0DD9B8" opacity="0.4"/>
+      <rect x="12" y="16" width="8" height="26" rx="2" fill="#0DD9B8" opacity="0.65"/>
+      <rect x="24" y="8" width="8" height="34" rx="2" fill="#0DD9B8" opacity="0.85"/>
+      <rect x="36" y="0" width="8" height="42" rx="2" fill="#0DD9B8"/>
+      <line x1="4" y1="24" x2="40" y2="3" stroke="#2463EB" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="40" cy="3" r="3.5" fill="#2463EB"/>
+    </svg>
+  </div>
   <div class="loader-text">Cargando datos · · ·</div>
 </div>
 
 <header>
   <div class="logo-area">
-    <div class="logo-mark" id="header-initials">CB</div>
+    <div class="logo-mark">
+      <svg width="42" height="42" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" rx="16" fill="#0F1E30"/>
+        <radialGradient id="lg1" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#0DD9B8" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="#0DD9B8" stop-opacity="0"/>
+        </radialGradient>
+        <rect width="80" height="80" rx="16" fill="url(#lg1)"/>
+        <g transform="translate(14, 14)">
+          <rect x="0" y="24" width="8" height="18" rx="2" fill="#0DD9B8" opacity="0.4"/>
+          <rect x="12" y="16" width="8" height="26" rx="2" fill="#0DD9B8" opacity="0.65"/>
+          <rect x="24" y="8" width="8" height="34" rx="2" fill="#0DD9B8" opacity="0.85"/>
+          <rect x="36" y="0" width="8" height="42" rx="2" fill="#0DD9B8"/>
+          <line x1="4" y1="24" x2="40" y2="3" stroke="#2463EB" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="40" cy="3" r="3.5" fill="#2463EB"/>
+        </g>
+      </svg>
+    </div>
     <div class="logo-text">
       <h1 id="header-nombre">Cala Bar</h1>
-      <p>Dashboard Financiero · Pymetrics</p>
+      <p>Dashboard · Pymetrics</p>
     </div>
   </div>
   <div class="header-right">
@@ -432,10 +458,8 @@ const PROXIES = [
 ];
 
 // Apply config to DOM
-document.title = CONFIG.nombre + ' · Dashboard Financiero';
+document.title = CONFIG.nombre + ' · Dashboard';
 document.getElementById('header-nombre').textContent   = CONFIG.nombre;
-document.getElementById('header-initials').textContent = CONFIG.iniciales;
-document.getElementById('loader-initials').textContent = CONFIG.iniciales;
 
 // ── STATE ──────────────────────────────────────────────────────
 let rawData = { financiero: [], economico: [], cxpagar: [] };
