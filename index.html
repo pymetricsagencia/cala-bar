@@ -432,6 +432,167 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
 .mix-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
 .ventas-mix-empty{font-family:var(--font-mono);font-size:0.73rem;color:var(--muted);padding:2rem;text-align:center}
 
+/* ── ANÁLISIS TEMPORAL OPERATIVA ── */
+.op-temporal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:0.75rem;
+  margin-bottom:1rem;
+  padding:0.85rem 1.2rem;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-card);
+}
+.op-temporal-title{
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.82rem;font-weight:700;color:var(--text);
+  font-family:var(--font-display);
+}
+.op-temporal-icon{font-size:1rem}
+.op-temporal-controls{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap}
+.op-temporal-note{
+  font-family:var(--font-mono);font-size:0.58rem;
+  color:var(--accent);
+  background:rgba(13,217,184,0.08);
+  border:1px solid rgba(13,217,184,0.2);
+  border-radius:5px;padding:0.25rem 0.6rem;
+  white-space:nowrap;
+}
+
+/* KPI cards temporales */
+.op-kpi-temporal{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:0.75rem;
+  margin-bottom:0.75rem;
+}
+.op-kpi-t{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:0.85rem 1rem;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow-card);
+}
+.op-kpi-t::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kt-accent,var(--accent))}
+.op-kpi-t.kt-green{--kt-accent:var(--green)}
+.op-kpi-t.kt-red{--kt-accent:var(--red)}
+.op-kpi-t.kt-gold{--kt-accent:var(--gold)}
+.op-kpi-t.kt-blue{--kt-accent:var(--blue)}
+.op-kpi-t-label{font-family:var(--font-mono);font-size:0.55rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:0.3rem}
+.op-kpi-t-val{font-size:1.3rem;font-weight:700;letter-spacing:-0.02em;line-height:1;font-family:var(--font-display)}
+.op-kpi-t.kt-green .op-kpi-t-val{color:var(--green)}
+.op-kpi-t.kt-red .op-kpi-t-val{color:var(--red)}
+.op-kpi-t.kt-gold .op-kpi-t-val{color:var(--gold)}
+.op-kpi-t.kt-blue .op-kpi-t-val{color:var(--blue)}
+.op-kpi-t-sub{font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);margin-top:0.25rem}
+.op-kpi-t-art{font-family:var(--font-mono);font-size:0.58rem;color:var(--accent);margin-top:0.15rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Gráficos lado a lado */
+.op-charts-temporal{
+  display:flex;gap:1rem;margin-bottom:1rem;
+}
+@media(max-width:768px){
+  .op-charts-temporal{flex-direction:column}
+  .op-temporal-header{flex-direction:column;align-items:flex-start}
+}
+
+/* Tabla de estadísticas */
+.op-stats-row{
+  display:grid;
+  grid-template-columns:1fr 80px 80px 80px 80px 120px;
+  padding:0.5rem 0.8rem;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  align-items:center;
+  font-size:0.75rem;
+  transition:background 0.12s;
+}
+.op-stats-row:hover{background:rgba(255,255,255,0.02)}
+.op-stats-row:last-child{border-bottom:none}
+.op-stats-head{
+  background:var(--bg3);
+  border-bottom:1px solid var(--border)!important;
+  font-family:var(--font-mono);font-size:0.57rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--muted);font-weight:600;
+}
+.op-stats-prod{font-weight:600;color:var(--text);display:flex;align-items:center;gap:0.5rem}
+.op-stats-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.op-stats-num{text-align:right;font-family:var(--font-mono);color:var(--muted)}
+.op-stats-num.min{color:var(--red)}
+.op-stats-num.max{color:var(--green)}
+.op-stats-num.avg{color:var(--gold)}
+.op-stats-num.importe{color:var(--text)}
+.op-stats-dia{text-align:right;font-family:var(--font-mono);font-size:0.68rem;color:var(--accent)}
+
+/* ── MULTI-SELECT CUSTOM OSCURO ── */
+.op-ms-wrap{
+  position:relative;
+  min-width:220px;
+  max-width:320px;
+  user-select:none;
+}
+.op-ms-trigger{
+  display:flex;align-items:center;justify-content:space-between;gap:0.5rem;
+  height:30px;padding:0 0.75rem;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  cursor:pointer;font-family:var(--font-display);font-size:0.72rem;font-weight:600;
+  color:var(--text);transition:border-color 0.15s;
+  white-space:nowrap;overflow:hidden;
+}
+.op-ms-trigger:hover{border-color:rgba(13,217,184,0.4)}
+.op-ms-trigger.open{border-color:var(--accent);box-shadow:0 0 0 2px rgba(13,217,184,0.12)}
+.op-ms-arrow{font-size:0.65rem;color:var(--muted);flex-shrink:0;transition:transform 0.2s}
+.op-ms-trigger.open .op-ms-arrow{transform:rotate(180deg)}
+#op-ms-label{overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+
+.op-ms-dropdown{
+  display:none;
+  position:absolute;top:calc(100% + 5px);left:0;
+  width:300px;
+  background:var(--bg3);border:1px solid rgba(13,217,184,0.25);
+  border-radius:10px;z-index:200;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+.op-ms-dropdown.open{display:block;animation:fadeIn 0.15s ease}
+
+.op-ms-search-wrap{padding:0.5rem 0.6rem;border-bottom:1px solid var(--border)}
+.op-ms-search{
+  width:100%;padding:0.35rem 0.7rem;
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:var(--font-display);font-size:0.75rem;outline:none;
+  transition:border-color 0.15s;
+}
+.op-ms-search:focus{border-color:var(--accent)}
+.op-ms-search::placeholder{color:var(--muted)}
+
+.op-ms-list{max-height:240px;overflow-y:auto;padding:0.3rem 0}
+.op-ms-list::-webkit-scrollbar{width:4px}
+.op-ms-list::-webkit-scrollbar-track{background:transparent}
+.op-ms-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+
+.op-ms-item{
+  display:flex;align-items:center;gap:0.6rem;
+  padding:0.38rem 0.8rem;cursor:pointer;
+  font-family:var(--font-display);font-size:0.75rem;color:var(--muted);
+  transition:background 0.1s;
+}
+.op-ms-item:hover{background:rgba(13,217,184,0.06);color:var(--text)}
+.op-ms-item.selected{color:var(--text)}
+.op-ms-item.top5-item{color:var(--accent);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:0.5rem;margin-bottom:0.2rem}
+.op-ms-item.top5-item:hover{background:rgba(13,217,184,0.08)}
+
+.op-ms-checkbox{
+  width:14px;height:14px;border-radius:3px;border:1.5px solid rgba(255,255,255,0.2);
+  background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;font-size:0.6rem;color:transparent;line-height:1;
+}
+.op-ms-item.selected .op-ms-checkbox{
+  background:var(--accent);border-color:var(--accent);color:#07101C;font-weight:900;
+}
+.op-ms-item-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+
 /* ── RESPONSIVE MOBILE ── */
 @media(max-width:768px){
   html{font-size:14px}
@@ -598,8 +759,61 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
     </div>
   </div>
 
-  <!-- Pareto cards -->
-  <div class="op-pareto-grid" id="op-pareto-cards"></div>
+  <!-- ══════════════════════════════════════════════
+       ANÁLISIS TEMPORAL — independiente del filtro global
+  ══════════════════════════════════════════════ -->
+  <div class="op-temporal-header">
+    <div class="op-temporal-title">
+      <span class="op-temporal-icon">📈</span>
+      Análisis Temporal de Ventas
+    </div>
+    <div class="op-temporal-controls">
+      <div class="op-temporal-note">⚡ Independiente del filtro global</div>
+
+      <!-- Multi-select custom oscuro -->
+      <div class="op-ms-wrap" id="op-ms-wrap">
+        <div class="op-ms-trigger" id="op-ms-trigger" onclick="toggleOpMs();event.stopPropagation()">
+          <span id="op-ms-label">Top 5 artículos</span>
+          <span class="op-ms-arrow">▾</span>
+        </div>
+        <div class="op-ms-dropdown" id="op-ms-dropdown" onclick="event.stopPropagation()">
+          <div class="op-ms-search-wrap">
+            <input type="text" id="op-ms-search" class="op-ms-search" placeholder="Buscar artículo…" oninput="filterOpMs()" onclick="event.stopPropagation()">
+          </div>
+          <div class="op-ms-list" id="op-ms-list">
+            <!-- opciones generadas por JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group" style="height:30px">
+        <span class="filter-label">Semanas</span>
+        <select id="op-weeks-select" onchange="renderTemporal()">
+          <option value="4">Últimas 4</option>
+          <option value="8">Últimas 8</option>
+          <option value="12">Últimas 12</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos lado a lado -->
+  <div class="op-charts-temporal">
+    <div class="chart-card" style="flex:1;min-width:0">
+      <div class="chart-title">Venta Semanal · Unidades</div>
+      <div style="position:relative;height:280px"><canvas id="op-chart-semanal"></canvas></div>
+    </div>
+    <div class="chart-card" style="flex:1;min-width:0">
+      <div class="chart-title">Patrón por Día de la Semana · Promedio histórico</div>
+      <div style="position:relative;height:280px"><canvas id="op-chart-diasemana"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Fichas mín/máx/prom por artículo -->
+  <div class="chart-card" style="margin-bottom:1rem">
+    <div class="chart-title">Estadísticas por Artículo · Unidades vendidas</div>
+    <div id="op-stats-table"></div>
+  </div>
 
 </div>
 </main>
@@ -632,7 +846,7 @@ function getDateRange(){const isCustom=document.getElementById('filter-custom-to
 function filterRows(rows,type){const range=getDateRange();return rows.filter(row=>{if(selectedSucursal!=='all'&&getSucursal(row)!==selectedSucursal)return false;if(!range)return true;const d=parseDate(getDateField(row,type));if(!d)return true;return d>=range.from&&d<=range.to;});}
 function getRowsBeforePeriod(rows,type){const range=getDateRange();return rows.filter(row=>{if(selectedSucursal!=='all'&&getSucursal(row)!==selectedSucursal)return false;if(!range)return false;const d=parseDate(getDateField(row,type));if(!d)return false;return d<range.from;});}
 function fetchCSV(key){const sheetUrl=CONFIG.sheets[key];function tryWithPapa(url){return new Promise((res,rej)=>{Papa.parse(url,{download:true,header:true,skipEmptyLines:true,complete:r=>{if(r.data&&r.data.length>0)res(r.data);else rej(new Error('Empty'));},error:e=>rej(e)});});}function tryWithFetch(url){return fetch(url).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(text=>{const result=Papa.parse(text,{header:true,skipEmptyLines:true});if(result.data&&result.data.length>0)return result.data;throw new Error('Empty');});}async function tryProxy(index){if(index>=PROXIES.length)throw new Error('All proxies failed');const url=PROXIES[index](sheetUrl);try{const data=await tryWithFetch(url);workingProxyIndex=index;return data;}catch(e1){try{const data=await tryWithPapa(url);workingProxyIndex=index;return data;}catch(e2){await new Promise(r=>setTimeout(r,300));return tryProxy(index+1);}}}return tryProxy(workingProxyIndex);}
-async function loadAll(){document.getElementById('loader').classList.remove('hidden');document.getElementById('error-banner').style.display='none';const loaderText=document.querySelector('.loader-text');const errors=[];async function safeLoad(key){try{loaderText.textContent='Cargando '+key+' · · ·';return await fetchCSV(key);}catch(e){errors.push(key);return[];}}const fin=await safeLoad('financiero');const eco=await safeLoad('economico');const cxp=await safeLoad('cxpagar');const op=await safeLoad('operativa');rawData={financiero:fin,economico:eco,cxpagar:cxp,operativa:op};if(eco.length>0)colMap=detectColumns(eco,'economico');else if(fin.length>0)colMap=detectColumns(fin,'financiero');if(cxp.length>0)colMapCxP=detectColumns(cxp,'cxpagar');if(errors.length>0&&errors.length<3){const b=document.getElementById('error-banner');b.style.display='block';b.innerHTML='⚠ No se pudo cargar: <strong>'+errors.join(', ')+'</strong>.';}else if(errors.length===3)document.getElementById('error-banner').style.display='block';if(fin.length>0||eco.length>0){loaderText.textContent='Procesando · · ·';buildFilterOptions();renderAll();document.getElementById('update-time').textContent=new Date().toLocaleTimeString('es-AR');}document.getElementById('loader').classList.add('hidden');}
+async function loadAll(){document.getElementById('loader').classList.remove('hidden');document.getElementById('error-banner').style.display='none';const loaderText=document.querySelector('.loader-text');const errors=[];async function safeLoad(key){try{loaderText.textContent='Cargando '+key+' · · ·';return await fetchCSV(key);}catch(e){errors.push(key);return[];}}const fin=await safeLoad('financiero');const eco=await safeLoad('economico');const cxp=await safeLoad('cxpagar');const op=await safeLoad('operativa');rawData={financiero:fin,economico:eco,cxpagar:cxp,operativa:op};if(eco.length>0)colMap=detectColumns(eco,'economico');else if(fin.length>0)colMap=detectColumns(fin,'financiero');if(cxp.length>0)colMapCxP=detectColumns(cxp,'cxpagar');if(errors.length>0&&errors.length<3){const b=document.getElementById('error-banner');b.style.display='block';b.innerHTML='⚠ No se pudo cargar: <strong>'+errors.join(', ')+'</strong>.';}else if(errors.length===3)document.getElementById('error-banner').style.display='block';if(fin.length>0||eco.length>0){loaderText.textContent='Procesando · · ·';buildFilterOptions();renderAll();document.getElementById('update-time').textContent=new Date().toLocaleTimeString('es-AR');}buildOpArtSelect();renderTemporal();document.getElementById('loader').classList.add('hidden');}
 function reloadData(){loadAll();}
 function buildFilterOptions(){const years=new Set();const months=new Set();const sucursales=new Set();[...rawData.financiero,...rawData.economico,...rawData.cxpagar].forEach(r=>{[getDateField(r,'financiero'),getDateField(r,'economico')].forEach(v=>{const d=parseDate(v);if(d){years.add(d.getFullYear());months.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));}});const suc=getSucursal(r);if(suc)sucursales.add(suc);});const selY=document.getElementById('filter-year');selY.innerHTML='<option value="all">Todos</option>';[...years].sort().reverse().forEach(y=>{selY.innerHTML+='<option value="'+y+'">'+y+'</option>';});updateMonthOptions(months);const selS=document.getElementById('filter-sucursal');selS.innerHTML='<option value="all">Consolidado</option>';[...sucursales].sort().forEach(s=>{selS.innerHTML+='<option value="'+s+'">'+s+'</option>';});}
 function updateMonthOptions(allMonths){const mNames=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];const selM=document.getElementById('filter-month');const current=selM.value;selM.innerHTML='<option value="all">Todos</option>';let filtered=[...allMonths];if(selectedYear!=='all')filtered=filtered.filter(m=>m.startsWith(selectedYear));filtered.sort().reverse().forEach(mk=>{const[y,m]=mk.split('-');selM.innerHTML+='<option value="'+mk+'">'+mNames[parseInt(m)-1]+' '+y+'</option>';});if([...selM.options].some(o=>o.value===current))selM.value=current;}
@@ -920,31 +1134,379 @@ function renderOperativa(){
     });
   }
 
-  // PARETO CARDS (50% y 70%)
-  const p50items=withAcum.filter((x,i)=>i===0||withAcum[i-1].acumPct<50);
-  const p70items=withAcum.filter((x,i)=>i===0||withAcum[i-1].acumPct<70);
-  const paretoGrid=document.getElementById('op-pareto-cards');
-  paretoGrid.innerHTML='';
-  const makeCard=(items,pct,cls,title)=>{
-    let html=`<div class="op-pareto-card ${cls}">
-      <div class="op-pareto-card-title">${title} — ${items.length} artículo${items.length!==1?'s':''}</div>`;
-    items.slice(0,12).forEach(({p,v})=>{
-      const pp=totalTot>0?(v.tot/totalTot*100):0;
-      html+=`<div class="op-pareto-item">
-        <span class="op-pareto-name">${p}</span>
-        <span class="op-pareto-val">${fmt(v.tot)} · ${fmtPct(pp)}</span>
-      </div>`;
-    });
-    if(items.length>12)html+=`<div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);padding:0.4rem 0">+${items.length-12} más…</div>`;
-    html+='</div>';
-    return html;
-  };
-  paretoGrid.innerHTML=
-    makeCard(p50items,50,'p50','🟢 50% de la venta')+
-    makeCard(p70items,70,'p70','🟡 70% de la venta');
 }
 
-function renderAll(){renderEconomico();renderFinanciero();renderCxPagar();renderOperativa();}
+function renderAll(){renderEconomico();renderFinanciero();renderCxPagar();renderOperativa();renderTemporal();}
+
+/* ══════════════════════════════════════════════════
+   MÓDULO TEMPORAL OPERATIVA
+   - Independiente del filtro global
+   - Trabaja siempre sobre rawData.operativa completo
+   - Ventana: últimas N semanas desde hoy
+══════════════════════════════════════════════════ */
+
+// Paleta compartida con el resto del dashboard
+const OP_COLORS=['#0DD9B8','#2463EB','#f0b429','#f87171','#818cf8','#fb923c','#34d399','#e879f9','#38bdf8','#a3e635'];
+const DIAS_LABEL=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+// Detecta las columnas de la hoja operativa
+function getOpCols(){
+  const rows=rawData.operativa;
+  if(!rows||rows.length===0) return{fecha:'FECHA',prod:'Producto',uni:'Vendidos',tot:'Total'};
+  const keys=Object.keys(rows[0]);
+  const find=(...kws)=>keys.find(k=>kws.some(kw=>k.toUpperCase().includes(kw.toUpperCase())))||kws[0];
+  return{
+    fecha: find('FECHA'),
+    prod:  find('PRODUCTO'),
+    uni:   find('VENDIDO','UNIDAD','CANT'),
+    tot:   find('TOTAL','IMPORTE','MONTO')
+  };
+}
+
+function parseOpNum(v){
+  if(!v&&v!==0)return 0;
+  return parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;
+}
+
+// Retorna el lunes de la semana a la que pertenece una fecha
+function getLunes(d){
+  const r=new Date(d);
+  const day=r.getDay(); // 0=Dom
+  const diff=(day===0)?-6:1-day;
+  r.setDate(r.getDate()+diff);
+  r.setHours(0,0,0,0);
+  return r;
+}
+
+// Clave de semana: "2026-W12"
+function getWeekKey(d){
+  const lun=getLunes(d);
+  const y=lun.getFullYear();
+  const startOfYear=new Date(y,0,1);
+  const weekNum=Math.ceil(((lun-startOfYear)/86400000+startOfYear.getDay()+1)/7);
+  return y+'-W'+String(weekNum).padStart(2,'0');
+}
+
+function getWeekLabel(lunes){
+  const vier=new Date(lunes);
+  vier.setDate(vier.getDate()+6);
+  const opts={day:'2-digit',month:'short'};
+  return lunes.toLocaleDateString('es-AR',opts)+' – '+vier.toLocaleDateString('es-AR',opts);
+}
+
+// ── MULTI-SELECT ARTÍCULOS ─────────────────────────
+let opSelectedArts=new Set(['__top5__']); // '__top5__' = modo top5
+
+function toggleOpMs(){
+  const trigger=document.getElementById('op-ms-trigger');
+  const dropdown=document.getElementById('op-ms-dropdown');
+  const isOpen=dropdown.classList.contains('open');
+  if(isOpen){closeOpMs();}
+  else{
+    trigger.classList.add('open');
+    dropdown.classList.add('open');
+    document.getElementById('op-ms-search').focus();
+  }
+}
+function closeOpMs(){
+  document.getElementById('op-ms-trigger')?.classList.remove('open');
+  document.getElementById('op-ms-dropdown')?.classList.remove('open');
+  document.getElementById('op-ms-search').value='';
+  filterOpMs();
+}
+// Cerrar al hacer click afuera
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('op-ms-wrap');
+  if(wrap&&!wrap.contains(e.target)) closeOpMs();
+});
+
+function buildOpArtSelect(){
+  const cols=getOpCols();
+  const prods=new Set();
+  (rawData.operativa||[]).forEach(r=>{const p=String(r[cols.prod]||'').trim();if(p)prods.add(p);});
+  const list=document.getElementById('op-ms-list');
+  if(!list)return;
+  // Guardar todos los productos disponibles en dataset para filtrar
+  list.dataset.allProds=JSON.stringify([...prods].sort());
+  renderOpMsList([...prods].sort());
+}
+
+function renderOpMsList(prods){
+  const list=document.getElementById('op-ms-list');
+  if(!list)return;
+  const searchVal=(document.getElementById('op-ms-search')?.value||'').trim().toLowerCase();
+  const filtered=searchVal?prods.filter(p=>p.toLowerCase().includes(searchVal)):prods;
+
+  let html='';
+  if(!searchVal){
+    const isTop5=opSelectedArts.has('__top5__');
+    html+=`<div class="op-ms-item top5-item${isTop5?' selected':''}" data-val="__top5__">
+      <div class="op-ms-checkbox">${isTop5?'✓':''}</div>
+      <span class="op-ms-item-name">⭐ Top 5 artículos</span>
+    </div>`;
+  }
+  filtered.forEach(p=>{
+    const sel=opSelectedArts.has(p);
+    const safeVal=p.replace(/"/g,'&quot;');
+    html+=`<div class="op-ms-item${sel?' selected':''}" data-val="${safeVal}">
+      <div class="op-ms-checkbox">${sel?'✓':''}</div>
+      <span class="op-ms-item-name">${p}</span>
+    </div>`;
+  });
+  if(filtered.length===0&&searchVal){
+    html='<div style="padding:0.8rem;font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);text-align:center">Sin resultados</div>';
+  }
+  list.innerHTML=html;
+}
+
+function filterOpMs(){
+  const allProds=JSON.parse(document.getElementById('op-ms-list')?.dataset.allProds||'[]');
+  renderOpMsList(allProds);
+}
+
+function toggleOpArt(val){
+  if(val==='__top5__'){
+    opSelectedArts=new Set(['__top5__']);
+  } else {
+    opSelectedArts.delete('__top5__');
+    if(opSelectedArts.has(val)){
+      opSelectedArts.delete(val);
+      if(opSelectedArts.size===0) opSelectedArts=new Set(['__top5__']);
+    } else {
+      opSelectedArts.add(val);
+    }
+  }
+  updateOpMsLabel();
+  // Re-renderizar lista sin cerrar el dropdown
+  const allProds=JSON.parse(document.getElementById('op-ms-list')?.dataset.allProds||'[]');
+  renderOpMsList(allProds);
+  renderTemporal();
+}
+
+function updateOpMsLabel(){
+  const label=document.getElementById('op-ms-label');
+  if(!label)return;
+  if(opSelectedArts.has('__top5__')){label.textContent='Top 5 artículos';return;}
+  const arr=[...opSelectedArts];
+  if(arr.length===1){label.textContent=arr[0];}
+  else if(arr.length<=3){label.textContent=arr.join(', ');}
+  else{label.textContent=arr.slice(0,2).join(', ')+' +'+( arr.length-2)+' más';}
+}
+
+function renderTemporal(){
+  const cols=getOpCols();
+  const nWeeks=parseInt(document.getElementById('op-weeks-select')?.value||4);
+  const isTop5=opSelectedArts.has('__top5__');
+  const selectedList=[...opSelectedArts].filter(v=>v!=='__top5__');
+
+  // ── 1. Calcular ventana de fechas ──────────────────
+  const hoy=new Date(); hoy.setHours(23,59,59);
+  const desde=new Date(hoy);
+  desde.setDate(desde.getDate()-(nWeeks*7));
+  desde.setHours(0,0,0,0);
+
+  // ── 2. Filtrar filas dentro de la ventana ──────────
+  const rows=(rawData.operativa||[]).filter(r=>{
+    const d=parseDate(r[cols.fecha]);
+    return d && d>=desde && d<=hoy;
+  });
+
+  if(rows.length===0){
+    document.getElementById('op-stats-table').innerHTML=
+      '<div style="padding:1rem;font-family:var(--font-mono);font-size:0.73rem;color:var(--muted)">Sin datos en la ventana seleccionada</div>';
+    ['op-chart-semanal','op-chart-diasemana'].forEach(id=>{
+      if(window['_chart_'+id]){window['_chart_'+id].destroy();window['_chart_'+id]=null;}
+    });
+    return;
+  }
+
+  // ── 3. Determinar top 5 o artículo seleccionado ────
+  const totByProd={};
+  rows.forEach(r=>{
+    const p=String(r[cols.prod]||'').trim(); if(!p)return;
+    totByProd[p]=(totByProd[p]||0)+parseOpNum(r[cols.tot]);
+  });
+  const sorted=Object.entries(totByProd).sort((a,b)=>b[1]-a[1]);
+  const prods=isTop5 ? sorted.slice(0,5).map(([p])=>p) : selectedList.filter(p=>totByProd[p]!==undefined);
+
+  // ── 4. Construir semanas (eje X) ───────────────────
+  const weekMap={}; // weekKey -> {lunes, label}
+  {
+    let cursor=getLunes(desde);
+    while(cursor<=hoy){
+      const wk=getWeekKey(cursor);
+      weekMap[wk]={lunes:new Date(cursor),label:getWeekLabel(cursor)};
+      cursor.setDate(cursor.getDate()+7);
+    }
+  }
+  const weekKeys=Object.keys(weekMap).sort();
+
+  // ── 5. Agregar: por prod × semana / por prod × díaSemana ──
+  // estructura: byProdWeek[prod][weekKey] = {uni, tot}
+  // estructura: byProdDay[prod][dayIdx]   = {uni:[], tot:[]} (arrays para prom)
+  const byProdWeek={};
+  const byProdDay={};
+  prods.forEach(p=>{
+    byProdWeek[p]={};
+    byProdDay[p]={0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
+    weekKeys.forEach(wk=>{ byProdWeek[p][wk]={uni:0,tot:0}; });
+  });
+
+  rows.forEach(r=>{
+    const p=String(r[cols.prod]||'').trim();
+    if(!prods.includes(p)) return;
+    const d=parseDate(r[cols.fecha]); if(!d)return;
+    const wk=getWeekKey(d);
+    const day=d.getDay(); // 0=Dom
+    const uni=parseOpNum(r[cols.uni]);
+    const tot=parseOpNum(r[cols.tot]);
+    if(byProdWeek[p]&&byProdWeek[p][wk]){
+      byProdWeek[p][wk].uni+=uni;
+      byProdWeek[p][wk].tot+=tot;
+    }
+    if(byProdDay[p]){
+      byProdDay[p][day].push(uni);
+    }
+  });
+
+  // ── 6. Estadísticas por artículo ──────────────────
+  // min/max/prom semanal de unidades + mejor día
+  const stats=prods.map(p=>{
+    const weekVals=weekKeys.map(wk=>byProdWeek[p][wk]?.uni||0).filter(v=>v>0);
+    const minW=weekVals.length?Math.min(...weekVals):0;
+    const maxW=weekVals.length?Math.max(...weekVals):0;
+    const avgW=weekVals.length?(weekVals.reduce((a,b)=>a+b,0)/weekVals.length):0;
+    // mejor día: mayor promedio
+    let bestDay=1,bestDayAvg=0;
+    for(let d=0;d<7;d++){
+      const arr=byProdDay[p][d];
+      const avg=arr.length?(arr.reduce((a,b)=>a+b,0)/arr.length):0;
+      if(avg>bestDayAvg){bestDayAvg=avg;bestDay=d;}
+    }
+    const totalVend=weekKeys.reduce((s,wk)=>s+(byProdWeek[p][wk]?.uni||0),0);
+    const totalImp=weekKeys.reduce((s,wk)=>s+(byProdWeek[p][wk]?.tot||0),0);
+    return{p,minW,maxW,avgW,bestDay,totalVend,totalImp};
+  });
+
+  // ── 8. Gráfico semanal ─────────────────────────────
+  {
+    const ctx=document.getElementById('op-chart-semanal');
+    if(window._chartOpSemanal){window._chartOpSemanal.destroy();window._chartOpSemanal=null;}
+    if(ctx){
+      window._chartOpSemanal=new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels:weekKeys.map(wk=>weekMap[wk]?.label||wk),
+          datasets:prods.map((p,i)=>({
+            label:p.length>18?p.substring(0,18)+'…':p,
+            data:weekKeys.map(wk=>byProdWeek[p][wk]?.uni||0),
+            backgroundColor:OP_COLORS[i%OP_COLORS.length]+'CC',
+            borderColor:OP_COLORS[i%OP_COLORS.length],
+            borderWidth:1,
+            borderRadius:3,
+          }))
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          plugins:{
+            legend:{display:prods.length>1,labels:{color:'#7A90B8',font:{size:10},boxWidth:10,padding:10}},
+            tooltip:{
+              backgroundColor:'#0F1E30',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,
+              titleColor:'#ECF2FC',bodyColor:'#7A90B8',
+              callbacks:{
+                label:ctx=>{
+                  const wk=weekKeys[ctx.dataIndex];
+                  const tot=byProdWeek[prods[ctx.datasetIndex]]?.[wk]?.tot||0;
+                  return ' '+ctx.dataset.label+': '+ctx.raw+' ud  ('+fmt(tot)+')';
+                }
+              }
+            }
+          },
+          scales:{
+            x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#7A90B8',font:{size:9},maxRotation:35}},
+            y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#7A90B8',font:{size:10}},
+               title:{display:true,text:'Unidades',color:'#7A90B8',font:{size:10}}}
+          }
+        }
+      });
+    }
+  }
+
+  // ── 9. Gráfico por día de la semana ────────────────
+  {
+    const ctx=document.getElementById('op-chart-diasemana');
+    if(window._chartOpDia){window._chartOpDia.destroy();window._chartOpDia=null;}
+    if(ctx){
+      // ordenar Lun-Dom (índices 1..6,0)
+      const diasOrden=[1,2,3,4,5,6,0];
+      const diasLabels=diasOrden.map(d=>DIAS_LABEL[d]);
+      window._chartOpDia=new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels:diasLabels,
+          datasets:prods.map((p,i)=>({
+            label:p.length>18?p.substring(0,18)+'…':p,
+            data:diasOrden.map(d=>{
+              const arr=byProdDay[p][d];
+              return arr.length?(arr.reduce((a,b)=>a+b,0)/arr.length):0;
+            }),
+            backgroundColor:OP_COLORS[i%OP_COLORS.length]+'CC',
+            borderColor:OP_COLORS[i%OP_COLORS.length],
+            borderWidth:1,
+            borderRadius:3,
+          }))
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          plugins:{
+            legend:{display:prods.length>1,labels:{color:'#7A90B8',font:{size:10},boxWidth:10,padding:10}},
+            tooltip:{
+              backgroundColor:'#0F1E30',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,
+              titleColor:'#ECF2FC',bodyColor:'#7A90B8',
+              callbacks:{
+                label:ctx=>' '+ctx.dataset.label+': '+ctx.raw.toFixed(1)+' ud prom.'
+              }
+            }
+          },
+          scales:{
+            x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#7A90B8',font:{size:11}}},
+            y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#7A90B8',font:{size:10}},
+               title:{display:true,text:'Prom. unidades',color:'#7A90B8',font:{size:10}}}
+          }
+        }
+      });
+    }
+  }
+
+  // ── 10. Tabla de estadísticas ──────────────────────
+  {
+    const container=document.getElementById('op-stats-table');
+    let html=`<div class="op-stats-row op-stats-head">
+      <div>Artículo</div>
+      <div style="text-align:right">Mín/sem</div>
+      <div style="text-align:right">Máx/sem</div>
+      <div style="text-align:right">Prom/sem</div>
+      <div style="text-align:right">Total ud</div>
+      <div style="text-align:right">Mejor día</div>
+    </div>`;
+    stats.forEach((s,i)=>{
+      const color=OP_COLORS[i%OP_COLORS.length];
+      html+=`<div class="op-stats-row">
+        <div class="op-stats-prod">
+          <span class="op-stats-dot" style="background:${color}"></span>
+          ${s.p}
+        </div>
+        <div class="op-stats-num min">${s.minW.toFixed(0)}</div>
+        <div class="op-stats-num max">${s.maxW.toFixed(0)}</div>
+        <div class="op-stats-num avg">${s.avgW.toFixed(1)}</div>
+        <div class="op-stats-num importe">${Math.round(s.totalVend).toLocaleString('es-AR')}</div>
+        <div class="op-stats-dia">${DIAS_LABEL[s.bestDay]}</div>
+      </div>`;
+    });
+    container.innerHTML=html;
+  }
+}
+
 document.getElementById('filter-custom-toggle').addEventListener('change',e=>{updatePeriodUI();if(e.target.value==='on'){selectedYear='all';selectedMonth='all';document.getElementById('filter-year').value='all';document.getElementById('filter-month').value='all';}renderAll();});
 document.getElementById('filter-year').addEventListener('change',e=>{selectedYear=e.target.value;const months=new Set();[...rawData.financiero,...rawData.economico].forEach(r=>{[parseDate(getDateField(r,'financiero')),parseDate(getDateField(r,'economico'))].forEach(d=>{if(d)months.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));});});selectedMonth='all';updateMonthOptions(months);renderAll();});
 document.getElementById('filter-month').addEventListener('change',e=>{selectedMonth=e.target.value;renderAll();});
@@ -952,6 +1514,13 @@ document.getElementById('filter-sucursal').addEventListener('change',e=>{selecte
 document.getElementById('filter-date-from').addEventListener('change',()=>renderAll());
 document.getElementById('filter-date-to').addEventListener('change',()=>renderAll());
 document.querySelectorAll('.stab').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+btn.dataset.section).classList.add('active');});});
+// Multi-select: event delegation sobre el contenedor de items
+document.getElementById('op-ms-list').addEventListener('click',e=>{
+  e.stopPropagation();
+  const item=e.target.closest('[data-val]');
+  if(!item)return;
+  toggleOpArt(item.dataset.val);
+});
 updatePeriodUI();loadAll();
 
 /* ══════════════════════════════════════════════════
