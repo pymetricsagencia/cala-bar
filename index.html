@@ -405,7 +405,7 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
 /* ── CASHFLOW PROYECTADO ── */
 .cashflow-section{margin-top:1.5rem}
 .cashflow-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem}
-.cashflow-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1rem}
+.cashflow-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem}
 .cf-kpi{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-md);padding:0.85rem 1rem;position:relative;overflow:hidden}
 .cf-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cf-accent,var(--accent))}
 .cf-kpi.ing{--cf-accent:var(--green)}
@@ -797,6 +797,7 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
       <span style="margin-left:auto;flex-shrink:0;background:rgba(13,217,184,0.1);color:var(--accent);border:1px solid rgba(13,217,184,0.2);border-radius:4px;padding:1px 7px;font-size:0.55rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap">⚡ Independiente del filtro global</span>
     </div>
     <div class="cashflow-kpis" id="cf-kpis"></div>
+    <div class="saldo-breakdown" id="cf-breakdown" style="display:none"></div>
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem">
       <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">◀ Histórico</span>
       <div style="flex:1;height:1px;background:var(--border)"></div>
@@ -1698,6 +1699,29 @@ function buildCashflow(){
   try{_buildCashflowInner();}catch(e){console.warn('Cashflow error:',e);}
 }
 
+function toggleCfBreak(key){
+  const panel=document.getElementById('cf-breakdown');
+  if(!panel||!window._cfBreak)return;
+  const data=window._cfBreak[key];
+  if(!data)return;
+  if(panel.dataset.open===key){panel.style.display='none';panel.dataset.open='';return;}
+  const total=data.efe+data.cta;
+  const pctEfe=total!==0?(data.efe/total*100):0;
+  const pctCta=total!==0?(data.cta/total*100):0;
+  const cls=v=>v>=0?'positive':'negative';
+  panel.innerHTML=`
+    <div class="saldo-breakdown-title">
+      <span>${data.label} · Efectivo vs Cuentas bancarias</span>
+      <span class="saldo-breakdown-close" onclick="document.getElementById('cf-breakdown').style.display='none';document.getElementById('cf-breakdown').dataset.open='';">✕</span>
+    </div>
+    <div class="saldo-breakdown-row"><span class="caja-name">💵 Efectivo (cajas)</span><span class="caja-amount ${cls(data.efe)}">${fmt(data.efe)} <span style="color:var(--muted);font-weight:400">· ${pctEfe.toFixed(1)}%</span></span></div>
+    <div class="saldo-breakdown-row"><span class="caja-name">🏦 Cuentas bancarias</span><span class="caja-amount ${cls(data.cta)}">${fmt(data.cta)} <span style="color:var(--muted);font-weight:400">· ${pctCta.toFixed(1)}%</span></span></div>
+    <div class="saldo-breakdown-row" style="border-top:1px solid var(--border);margin-top:0.3rem;padding-top:0.5rem"><span class="caja-name"><b>TOTAL</b></span><span class="caja-amount ${cls(total)}"><b>${fmt(total)}</b></span></div>`;
+  panel.style.display='block';
+  panel.classList.add('visible');
+  panel.dataset.open=key;
+}
+
 function _buildCashflowInner(){
   _currentType='financiero';
   const today=new Date();today.setHours(0,0,0,0);
@@ -1822,32 +1846,42 @@ function _buildCashflowInner(){
   const totalIngProj=projWeeks.reduce((s,w)=>s+w.totalIng,0);
   const netProj=totalIngProj-totalEgrProj;
 
+  /* ── Breakdown efectivo vs cuentas bancarias ── */
+  const isBancoName=c=>{const s=String(c||'').toUpperCase();return s.includes('BANCO')||s.includes('GALICIA')||s.includes('MACRO')||s.includes('HSBC')||s.includes('NACION')||s.includes('BBVA')||s.includes('SANTANDER')||s.includes('CUENTA');};
+  let ingEfeAcum=0,ingCtaAcum=0;
+  _currentType='financiero';
+  historicWeeks.forEach(wk=>{(wk.rows||[]).forEach(r=>{const c=getCaja(r);if(isBancoName(c))ingCtaAcum+=getIng(r);else ingEfeAcum+=getIng(r);});});
+  const avgIngEfe=historicWeeks.length>0?ingEfeAcum/historicWeeks.length:0;
+  const avgIngCta=historicWeeks.length>0?ingCtaAcum/historicWeeks.length:0;
+  _currentType='cxpagar';
+  let egrEfe4=0,egrCta4=0;
+  projWeeks.forEach(wk=>{rawData.cxpagar.forEach(r=>{const vStr=getVencimiento(r)||getDateField(r,'cxpagar');const d=parseDate(vStr);if(!d)return;d.setHours(12,0,0,0);if(d>=wk.from&&d<=wk.to){const c=getCaja(r);if(isBancoName(c))egrCta4+=getEgr(r);else egrEfe4+=getEgr(r);}});});
+  if((egrEfe4+egrCta4)===0&&totalEgrProj>0){let hE=0,hC=0;historicWeeks.forEach(wk=>{rawData.cxpagar.forEach(r=>{const vStr=getVencimiento(r)||getDateField(r,'cxpagar');const d=parseDate(vStr);if(!d)return;d.setHours(12,0,0,0);if(d>=wk.from&&d<=wk.to){const c=getCaja(r);if(isBancoName(c))hC+=getEgr(r);else hE+=getEgr(r);}});});const hT=hE+hC;if(hT>0){egrEfe4=totalEgrProj*(hE/hT);egrCta4=totalEgrProj*(hC/hT);}}
+  _currentType='financiero';
+  const netEfe=avgIngEfe*4-egrEfe4;
+  const netCta=avgIngCta*4-egrCta4;
+  window._cfBreak={ing:{efe:avgIngEfe,cta:avgIngCta,label:'Ingreso Promedio Semanal'},egr:{efe:egrEfe4,cta:egrCta4,label:'Egresos Proyectados 4 semanas'},net:{efe:netEfe,cta:netCta,label:'Flujo Neto Proyectado'}};
+
   document.getElementById('cf-kpis').innerHTML=`
-    <div class="cf-kpi" style="--cf-accent:var(--accent)">
-      <div class="cf-kpi-label">Saldo Actual</div>
-      <div class="cf-kpi-value" style="color:${saldoActual>=0?'var(--accent)':'var(--red)'}">${fmt(saldoActual)}</div>
-      <div class="cf-kpi-sub">acumulado total hoy</div>
-    </div>
-    <div class="cf-kpi ing">
+    <div class="cf-kpi ing clickable" onclick="toggleCfBreak('ing')" style="cursor:pointer">
       <div class="cf-kpi-label">Ingreso Prom. Semanal</div>
       <div class="cf-kpi-value">${fmt(avgIng)}</div>
       <div class="cf-kpi-sub">base ${historicWeeks.length} sem. válidas</div>
+      <div class="kpi-click-hint">▸ efectivo / cuentas</div>
     </div>
     <div class="cf-kpi egr">
       <div class="cf-kpi-label">Egresos Proyectados 4 sem.</div>
       <div class="cf-kpi-value">${fmt(totalEgrProj)}</div>
       <div class="cf-kpi-sub">vencimientos CxP</div>
     </div>
-    <div class="cf-kpi net">
+    <div class="cf-kpi net clickable" onclick="toggleCfBreak('net')" style="cursor:pointer">
       <div class="cf-kpi-label">Flujo Neto Proyectado</div>
       <div class="cf-kpi-value" style="color:${netProj>=0?'var(--gold)':'var(--red)'}">${fmt(netProj)}</div>
       <div class="cf-kpi-sub">próximas 4 semanas</div>
-    </div>
-    <div class="cf-kpi saldo">
-      <div class="cf-kpi-label">Saldo Proyectado Final</div>
-      <div class="cf-kpi-value" style="color:${projWeeks.length>0&&projWeeks[3].saldoFin>=0?'var(--blue)':'var(--red)'}">${fmt(projWeeks.length>0?projWeeks[3].saldoFin:saldoActual)}</div>
-      <div class="cf-kpi-sub">al cierre sem. 4</div>
+      <div class="kpi-click-hint">▸ efectivo / cuentas</div>
     </div>`;
+  document.getElementById('cf-breakdown').style.display='none';
+  document.getElementById('cf-breakdown').dataset.open='';
 
   /* ── 8. Tarjetas semanales ── */
   const allWeeks=[
