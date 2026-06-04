@@ -749,6 +749,13 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
 .ra-toggle-btn{padding:.25rem .8rem;font-family:var(--font-display);font-size:.68rem;color:var(--muted);background:transparent;border:none;cursor:pointer}
 .ra-toggle-btn.active{background:var(--accent);color:#062018;font-weight:700}
 .ra-chart-wrap{position:relative;height:300px;padding:.3rem .2rem 0}
+.ra-month-filter{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem;margin:0 .2rem 1rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)}
+.ra-month-label{font-family:var(--font-mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-right:.4rem}
+.ra-chip,.ra-chip-all{padding:.25rem .6rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-family:var(--font-display);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s}
+.ra-chip:hover,.ra-chip-all:hover{border-color:var(--accent);color:var(--text)}
+.ra-chip.active{background:rgba(13,217,184,.12);border-color:var(--accent);color:var(--accent)}
+.ra-chip-all{margin-left:.5rem;border-style:dashed}
+.ra-chip-all.active{background:var(--accent);border-style:solid;color:#062018}
 </style>
 </head>
 <body>
@@ -972,6 +979,22 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
 
 </div>
 <div class="section" id="sec-resumen">
+  <div class="ra-month-filter" id="ra-month-filter">
+    <span class="ra-month-label">Meses</span>
+    <button class="ra-chip active" data-m="0" onclick="toggleResumenMonth(0,this)">Ene</button>
+    <button class="ra-chip active" data-m="1" onclick="toggleResumenMonth(1,this)">Feb</button>
+    <button class="ra-chip active" data-m="2" onclick="toggleResumenMonth(2,this)">Mar</button>
+    <button class="ra-chip active" data-m="3" onclick="toggleResumenMonth(3,this)">Abr</button>
+    <button class="ra-chip active" data-m="4" onclick="toggleResumenMonth(4,this)">May</button>
+    <button class="ra-chip active" data-m="5" onclick="toggleResumenMonth(5,this)">Jun</button>
+    <button class="ra-chip active" data-m="6" onclick="toggleResumenMonth(6,this)">Jul</button>
+    <button class="ra-chip active" data-m="7" onclick="toggleResumenMonth(7,this)">Ago</button>
+    <button class="ra-chip active" data-m="8" onclick="toggleResumenMonth(8,this)">Sep</button>
+    <button class="ra-chip active" data-m="9" onclick="toggleResumenMonth(9,this)">Oct</button>
+    <button class="ra-chip active" data-m="10" onclick="toggleResumenMonth(10,this)">Nov</button>
+    <button class="ra-chip active" data-m="11" onclick="toggleResumenMonth(11,this)">Dic</button>
+    <button class="ra-chip-all active" onclick="setAllResumenMonths()">Todos</button>
+  </div>
   <div class="resumen-block">
     <div class="resumen-title">Económico — Resumen Anual <span id="ra-eco-year" class="resumen-year"></span></div>
     <div class="ra-table-scroll"><div id="ra-eco-body"></div></div>
@@ -1553,6 +1576,22 @@ function renderResumenView(){
     const body=document.getElementById(bid);
     resumenChartSel[t].forEach((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];const dot=body.querySelector('.ra-dot[data-key="'+CSS.escape(k)+'"]');if(dot){dot.classList.add('on');dot.style.background=c;dot.closest('tr').classList.add('charted');}});
   });
+}
+function refreshResumenChips(){
+  document.querySelectorAll('#ra-month-filter .ra-chip').forEach(b=>{b.classList.toggle('active',resumenMonths.has(+b.dataset.m));});
+  const allBtn=document.querySelector('#ra-month-filter .ra-chip-all');
+  if(allBtn)allBtn.classList.toggle('active',resumenMonths.size===12);
+}
+function toggleResumenMonth(i,btn){
+  if(resumenMonths.has(i)){if(resumenMonths.size===1)return;resumenMonths.delete(i);}
+  else resumenMonths.add(i);
+  refreshResumenChips();
+  renderResumenView();
+}
+function setAllResumenMonths(){
+  resumenMonths=new Set([0,1,2,3,4,5,6,7,8,9,10,11]);
+  refreshResumenChips();
+  renderResumenView();
 }
 function setResumenChartMode(type,mode,btn){
   resumenChartMode[type]=mode;
