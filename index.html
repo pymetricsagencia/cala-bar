@@ -759,7 +759,7 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
 </div>
 <main>
 <div id="error-banner" class="error-banner">⚠ Error al cargar datos.</div>
-<div class="section-tabs"><button class="stab active" data-section="economico">Económico</button><button class="stab" data-section="financiero">Financiero</button><button class="stab" data-section="cxpagar">Cuentas a Pagar</button><button class="stab" data-section="operativa">Operativa</button></div>
+<div class="section-tabs"><button class="stab active" data-section="economico">Económico</button><button class="stab" data-section="financiero">Financiero</button><button class="stab" data-section="cxpagar">Cuentas a Pagar</button><button class="stab" data-section="operativa">Operativa</button><button class="stab" data-section="resumen">Resumen Anual</button></div>
 <div class="section active" id="sec-economico"><div class="kpi-grid" id="kpi-eco"></div><div class="stmt-container" id="stmt-eco"><div class="stmt-header-bar with-ref"><div>Cuenta</div><div style="text-align:right">Importe $</div><div style="text-align:right">Incid. %</div><div class="stmt-ref">Ref. %</div></div><div id="stmt-eco-body"></div></div><div class="detail-panel" id="detail-eco"><div class="detail-title" id="detail-eco-title">Detalle</div><div class="table-wrap" style="max-height:400px;overflow-y:auto"><table><thead><tr><th>Fecha Comprobante</th><th>Caja</th><th>Proveedor</th><th>Descripción</th><th>Ingreso</th><th>Egreso</th></tr></thead><tbody id="detail-eco-body"></tbody></table></div></div>
 <div class="ventas-mix-card" id="ventas-mix-card">
   <div class="ventas-mix-title">Mix de Ventas por Forma de Pago</div>
@@ -932,6 +932,33 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
     <div id="op-stats-table"></div>
   </div>
 
+</div>
+<div class="section" id="sec-resumen">
+  <div class="resumen-block">
+    <div class="resumen-title">Económico — Resumen Anual <span id="ra-eco-year" class="resumen-year"></span></div>
+    <div class="ra-table-scroll"><div id="ra-eco-body"></div></div>
+    <div class="ra-chart-head">
+      <div id="ra-eco-legend" class="ra-legend"><span class="ra-legend-empty">Tocá una cuenta en la tabla para ver su tendencia</span></div>
+      <div class="ra-toggle">
+        <button class="ra-toggle-btn active" data-mode="importe" onclick="setResumenChartMode('economico','importe',this)">Importe</button>
+        <button class="ra-toggle-btn" data-mode="pct" onclick="setResumenChartMode('economico','pct',this)">%</button>
+      </div>
+    </div>
+    <div class="ra-chart-wrap"><canvas id="ra-eco-chart"></canvas></div>
+  </div>
+
+  <div class="resumen-block">
+    <div class="resumen-title">Financiero — Resumen Anual <span id="ra-fin-year" class="resumen-year"></span></div>
+    <div class="ra-table-scroll"><div id="ra-fin-body"></div></div>
+    <div class="ra-chart-head">
+      <div id="ra-fin-legend" class="ra-legend"><span class="ra-legend-empty">Tocá una cuenta en la tabla para ver su tendencia</span></div>
+      <div class="ra-toggle">
+        <button class="ra-toggle-btn active" data-mode="importe" onclick="setResumenChartMode('financiero','importe',this)">Importe</button>
+        <button class="ra-toggle-btn" data-mode="pct" onclick="setResumenChartMode('financiero','pct',this)">%</button>
+      </div>
+    </div>
+    <div class="ra-chart-wrap"><canvas id="ra-fin-chart"></canvas></div>
+  </div>
 </div>
 </main>
 <div class="footer">Dashboard generado por <a href="https://pymetrics.com.ar" target="_blank">Pymetrics</a> · Datos en tiempo real desde Google Sheets</div>
@@ -1713,7 +1740,18 @@ document.getElementById('filter-month').addEventListener('change',e=>{selectedMo
 document.getElementById('filter-sucursal').addEventListener('change',e=>{selectedSucursal=e.target.value;renderAll();});
 document.getElementById('filter-date-from').addEventListener('change',()=>renderAll());
 document.getElementById('filter-date-to').addEventListener('change',()=>renderAll());
-document.querySelectorAll('.stab').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('sec-'+btn.dataset.section).classList.add('active');});});
+document.querySelectorAll('.stab').forEach(btn=>{btn.addEventListener('click',()=>{
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const sec=btn.dataset.section;
+  document.getElementById('sec-'+sec).classList.add('active');
+  const isResumen=sec==='resumen';
+  const mEl=document.getElementById('filter-month');const mg=mEl?mEl.closest('.filter-group'):null;
+  if(mg)mg.style.display=isResumen?'none':'';
+  const ct=document.getElementById('filter-custom-toggle');
+  if(ct){const cg=ct.closest('.filter-group');if(cg)cg.style.display=isResumen?'none':'';}
+  if(isResumen){if(window._resumenChartEco)window._resumenChartEco.resize();if(window._resumenChartFin)window._resumenChartFin.resize();}
+});});
 // Multi-select: event delegation sobre el contenedor de items
 document.getElementById('op-ms-list').addEventListener('click',e=>{
   e.stopPropagation();
