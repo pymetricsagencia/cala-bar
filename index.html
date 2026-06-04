@@ -1530,20 +1530,23 @@ function renderResumenTable(containerId,type,matrix){
 function renderAll(){renderEconomico();renderFinanciero();renderCxPagar();renderOperativa();renderTemporal();renderResumen();}
 function renderResumen(){
   try{
-    const eco=buildResumenMatrix('economico');
-    const fin=buildResumenMatrix('financiero');
-    window._resumenMatrix={economico:eco,financiero:fin};
-    document.getElementById('ra-eco-year').textContent=eco.year;
-    document.getElementById('ra-fin-year').textContent=fin.year;
-    renderResumenTable('ra-eco-body','economico',eco);
-    renderResumenTable('ra-fin-body','financiero',fin);
-    renderResumenChart('economico');
-    renderResumenChart('financiero');
-    [['economico','ra-eco-body'],['financiero','ra-fin-body']].forEach(([t,bid])=>{
-      const body=document.getElementById(bid);
-      resumenChartSel[t].forEach((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];const dot=body.querySelector('.ra-dot[data-key="'+CSS.escape(k)+'"]');if(dot){dot.classList.add('on');dot.style.background=c;dot.closest('tr').classList.add('charted');}});
-    });
+    window._resumenMatrix={economico:buildResumenMatrix('economico'),financiero:buildResumenMatrix('financiero')};
+    document.getElementById('ra-eco-year').textContent=window._resumenMatrix.economico.year;
+    document.getElementById('ra-fin-year').textContent=window._resumenMatrix.financiero.year;
+    renderResumenView();
   }catch(e){console.error('renderResumen',e);}
+}
+function renderResumenView(){
+  if(!window._resumenMatrix)return;
+  if(typeof refreshResumenChips==='function')refreshResumenChips();
+  renderResumenTable('ra-eco-body','economico',window._resumenMatrix.economico);
+  renderResumenTable('ra-fin-body','financiero',window._resumenMatrix.financiero);
+  renderResumenChart('economico');
+  renderResumenChart('financiero');
+  [['economico','ra-eco-body'],['financiero','ra-fin-body']].forEach(([t,bid])=>{
+    const body=document.getElementById(bid);
+    resumenChartSel[t].forEach((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];const dot=body.querySelector('.ra-dot[data-key="'+CSS.escape(k)+'"]');if(dot){dot.classList.add('on');dot.style.background=c;dot.closest('tr').classList.add('charted');}});
+  });
 }
 function setResumenChartMode(type,mode,btn){
   resumenChartMode[type]=mode;
