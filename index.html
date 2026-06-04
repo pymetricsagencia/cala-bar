@@ -1009,6 +1009,9 @@ const _now=new Date();
 let selectedYear=String(_now.getFullYear());
 let selectedMonth=_now.getFullYear()+'-'+String(_now.getMonth()+1).padStart(2,'0');
 let selectedSucursal='all';let selectedSubcuenta={economico:null,financiero:null,cxpagar:null};let workingProxyIndex=0;let saldoBreakdownData={inicial:{},final:{}};let weekProjectionData=[];let echeqFilter='all';let opSortCol='tot';let opSortDir='desc';
+const RA_PALETTE=['#0DD9B8','#f0b429','#2463EB','#f87171','#a78bfa','#34d399','#fb923c','#22d3ee'];
+let resumenChartSel={economico:[],financiero:[]};
+let resumenChartMode={economico:'importe',financiero:'importe'};
 let colMap={};let colMapCxP=null;
 function detectColumns(rows,label){if(!rows||rows.length===0)return{};const keys=Object.keys(rows[0]);function findCol(keywords){for(const key of keys){const clean=key.replace(/\s+/g,' ').trim().toUpperCase();for(const kw of keywords){if(clean.includes(kw.toUpperCase()))return key;}}return null;}return{INGRESOS:findCol(['INGRESOS'])||'INGRESOS',EGRESOS:findCol(['EGRESOS'])||'EGRESOS',CUENTA:findCol(['CUENTA'])||'CUENTA',SUB_CUENTA:findCol(['SUB CUENTA','SUB_CUENTA','SUBCUENTA'])||'SUB CUENTA',SUCURSAL:findCol(['SUCURSAL'])||'SUCURSAL',PROVEEDOR:findCol(['PROVEEDOR'])||'PROVEEDOR',COMPROBANTE:findCol(['COMPROBANTE'])||'NRO DE COMPROBANTE',CAJA:findCol(['CAJA'])||'CAJA',FECHA_MOV:findCol(['FECHA DEL MOVIMIENTO','FECHA MOVIMIENTO'])||'FECHA DEL MOVIMIENTO',FECHA_COMP:findCol(['FECHA DEL COMPROBANTE','FECHA COMPROBANTE'])||'FECHA DEL COMPROBANTE',OBS:findCol(['OBSERVACION','DETALLE'])||'OBSERVACIONES / DETALLE',VENCIMIENTO:findCol(['VENCIMIENTO','FECHA VENCIMIENTO','VTO'])||(keys.length>12?keys[12]:null),ECHEQ:findCol(['NUMERO_DE_CHEQUE','NUMERO DE CHEQUE','NRO_CHEQUE','NRO CHEQUE','NUMERO CHEQUE','NUM CHEQUE','N° CHEQUE','NRO_DE_CHEQUE'])||null};}
 let _currentType='economico';function getColMap(){return(_currentType==='cxpagar'&&colMapCxP)?colMapCxP:colMap;}
@@ -1534,7 +1537,19 @@ function renderResumen(){
     document.getElementById('ra-fin-year').textContent=fin.year;
     renderResumenTable('ra-eco-body','economico',eco);
     renderResumenTable('ra-fin-body','financiero',fin);
+    renderResumenChart('economico');
+    renderResumenChart('financiero');
+    [['economico','ra-eco-body'],['financiero','ra-fin-body']].forEach(([t,bid])=>{
+      const body=document.getElementById(bid);
+      resumenChartSel[t].forEach((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];const dot=body.querySelector('.ra-dot[data-key="'+CSS.escape(k)+'"]');if(dot){dot.classList.add('on');dot.style.background=c;dot.closest('tr').classList.add('charted');}});
+    });
   }catch(e){console.error('renderResumen',e);}
+}
+function setResumenChartMode(type,mode,btn){
+  resumenChartMode[type]=mode;
+  const head=btn.closest('.ra-chart-head');
+  head.querySelectorAll('.ra-toggle-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  renderResumenChart(type);
 }
 function toggleResumenSub(caretEl,parentKey){
   const tr=caretEl.closest('tr');
@@ -1545,7 +1560,54 @@ function toggleResumenSub(caretEl,parentKey){
     sib=sib.nextElementSibling;
   }
 }
-function toggleResumenChart(type,key){}
+const raLabelPlugin={id:'raLabels',afterDatasetsDraw(chart){
+  const ctx=chart.ctx;const mode=chart.$raMode||'importe';
+  chart.data.datasets.forEach((ds,i)=>{
+    const meta=chart.getDatasetMeta(i);if(meta.hidden)return;
+    meta.data.forEach((pt,idx)=>{
+      const v=ds.data[idx];if(v==null)return;
+      ctx.save();ctx.fillStyle=ds.borderColor;ctx.font='600 9px monospace';ctx.textAlign='center';
+      ctx.fillText(mode==='pct'?fmtPct(v):fmtShort(v),pt.x,pt.y-7);
+      ctx.restore();
+    });
+  });
+}};
+function renderResumenChart(type){
+  const matrix=window._resumenMatrix?window._resumenMatrix[type]:null;if(!matrix)return;
+  const canvasId=type==='economico'?'ra-eco-chart':'ra-fin-chart';
+  const legendId=type==='economico'?'ra-eco-legend':'ra-fin-legend';
+  const instKey=type==='economico'?'_resumenChartEco':'_resumenChartFin';
+  const mode=resumenChartMode[type];
+  const sel=resumenChartSel[type].filter(k=>matrix.seriesByKey[k]);
+  resumenChartSel[type]=sel;
+  const legend=document.getElementById(legendId);
+  if(sel.length===0){legend.innerHTML='<span class="ra-legend-empty">Tocá una cuenta en la tabla para ver su tendencia</span>';}
+  else{legend.innerHTML=sel.map((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];return '<span><span class="ra-dot on" style="background:'+c+'"></span>'+matrix.seriesByKey[k].label+'</span>';}).join('');}
+  const datasets=sel.map((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];const s=matrix.seriesByKey[k];return{label:s.label,data:(mode==='pct'?s.pct:s.imp),borderColor:c,backgroundColor:c,tension:.25,spanGaps:false,pointRadius:3,borderWidth:2.5};});
+  const ctx=document.getElementById(canvasId).getContext('2d');
+  if(window[instKey])window[instKey].destroy();
+  window[instKey]=new Chart(ctx,{
+    type:'line',
+    data:{labels:RA_MESES,datasets},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:18}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(mode==='pct'?fmtPct(c.parsed.y):fmt(c.parsed.y))}}},
+      scales:{y:{ticks:{color:'#7A90B8',callback:v=>mode==='pct'?v+'%':fmtShort(v)},grid:{color:'rgba(255,255,255,0.06)'}},x:{ticks:{color:'#7A90B8'},grid:{display:false}}}
+    },
+    plugins:[raLabelPlugin]
+  });
+  window[instKey].$raMode=mode;
+}
+function toggleResumenChart(type,key){
+  const arr=resumenChartSel[type];
+  const idx=arr.indexOf(key);
+  if(idx>=0)arr.splice(idx,1); else arr.push(key);
+  const bodyId=type==='economico'?'ra-eco-body':'ra-fin-body';
+  const body=document.getElementById(bodyId);
+  body.querySelectorAll('.ra-dot').forEach(d=>{d.classList.remove('on');d.style.background='';});
+  body.querySelectorAll('.charted').forEach(r=>r.classList.remove('charted'));
+  arr.forEach((k,i)=>{const c=RA_PALETTE[i%RA_PALETTE.length];const dot=body.querySelector('.ra-dot[data-key="'+CSS.escape(k)+'"]');if(dot){dot.classList.add('on');dot.style.background=c;dot.closest('tr').classList.add('charted');}});
+  renderResumenChart(type);
+}
 
 /* ══════════════════════════════════════════════════
    MÓDULO TEMPORAL OPERATIVA
