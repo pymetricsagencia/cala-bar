@@ -711,6 +711,44 @@ tbody tr:hover{background:rgba(255,255,255,0.02)}
   .last-update{display:none}
   .btn{padding:0.35rem 0.7rem;font-size:0.7rem}
 }
+#sec-resumen .resumen-block{margin-bottom:2rem}
+.resumen-title{font-family:var(--font-display);font-weight:600;color:var(--text);font-size:1rem;margin:0 0 .6rem;padding:0 .2rem}
+.resumen-year{color:var(--accent);font-family:var(--font-mono);font-size:.8rem;margin-left:.4rem}
+.ra-table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg2)}
+.ra-table{border-collapse:collapse;width:100%;font-family:var(--font-mono);font-size:.72rem;color:var(--text);white-space:nowrap}
+.ra-table th,.ra-table td{padding:.34rem .6rem;text-align:right;border-bottom:1px solid var(--border)}
+.ra-table th{position:sticky;top:0;background:var(--bg4);color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.6rem;letter-spacing:.05em;z-index:2}
+.ra-table .ra-col-cuenta{text-align:left;position:sticky;left:0;background:var(--bg2);font-family:var(--font-display);font-weight:500;min-width:190px;z-index:1}
+.ra-table th.ra-col-cuenta{background:var(--bg4);z-index:3}
+.ra-table .ra-col-total{background:rgba(13,217,184,.06);border-left:1px solid var(--border)}
+.ra-table th.ra-col-total{background:var(--bg4)}
+.ra-cell b{display:block;font-weight:600}
+.ra-cell .ra-pct{color:var(--muted);font-size:.64rem}
+.ra-cell.neg b{color:var(--red)}
+.ra-cell.pos b{color:var(--accent)}
+.ra-row-hdr td{background:var(--bg3);color:var(--muted);text-align:left;font-family:var(--font-display);font-weight:700;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase}
+.ra-row-total .ra-col-cuenta,.ra-row-total td{font-weight:700}
+.ra-row-result td{border-top:2px solid var(--accent);font-weight:700}
+.ra-row-result .ra-col-cuenta{color:var(--accent)}
+.ra-row-acc{cursor:pointer}
+.ra-row-acc:hover .ra-col-cuenta,.ra-row-sub:hover .ra-col-cuenta{color:var(--accent)}
+.ra-row-acc.charted,.ra-row-sub.charted{background:rgba(13,217,184,.05)}
+.ra-row-sub{cursor:pointer;display:none}
+.ra-row-sub.open{display:table-row}
+.ra-row-sub .ra-col-cuenta{padding-left:2rem;color:var(--muted);font-weight:400}
+.ra-caret{display:inline-block;width:1em;color:var(--muted);cursor:pointer;transition:transform .15s}
+.ra-caret.open{transform:rotate(90deg)}
+.ra-caret.hidden{visibility:hidden}
+.ra-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 .35rem 0 .15rem;vertical-align:middle;visibility:hidden}
+.ra-dot.on{visibility:visible}
+.ra-chart-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin:.7rem .2rem .4rem}
+.ra-legend{display:flex;gap:.9rem;flex-wrap:wrap;font-family:var(--font-display);font-size:.72rem;color:var(--text)}
+.ra-legend span{display:flex;align-items:center}
+.ra-legend-empty{color:var(--muted)}
+.ra-toggle{display:inline-flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.ra-toggle-btn{padding:.25rem .8rem;font-family:var(--font-display);font-size:.68rem;color:var(--muted);background:transparent;border:none;cursor:pointer}
+.ra-toggle-btn.active{background:var(--accent);color:#062018;font-weight:700}
+.ra-chart-wrap{position:relative;height:300px;padding:.3rem .2rem 0}
 </style>
 </head>
 <body>
@@ -1016,6 +1054,7 @@ function updateMonthOptions(allMonths){const mNames=['Ene','Feb','Mar','Abr','Ma
 function updatePeriodUI(){const isCustom=document.getElementById('filter-custom-toggle').value==='on';document.getElementById('filter-year').closest('.filter-group').style.display=isCustom?'none':'';document.getElementById('filter-month').closest('.filter-group').style.display=isCustom?'none':'';['lbl-date-from','lbl-date-to'].forEach(id=>{document.getElementById(id).style.display=isCustom?'':'none';});}
 function buildStatementData(data,type){const byCuenta={};data.forEach(row=>{const cuenta=getCuenta(row);if(!cuenta)return;const cat=classifyAccount(cuenta,type);if(cat==='excluded')return;if(!byCuenta[cuenta])byCuenta[cuenta]={cuenta,cat,num:getAccNum(cuenta),subcuentas:{},totalIng:0,totalEgr:0};const ing=getIng(row),egr=getEgr(row);byCuenta[cuenta].totalIng+=ing;byCuenta[cuenta].totalEgr+=egr;const sub=getSubCuenta(row);if(!byCuenta[cuenta].subcuentas[sub])byCuenta[cuenta].subcuentas[sub]={ing:0,egr:0,rows:[]};byCuenta[cuenta].subcuentas[sub].ing+=ing;byCuenta[cuenta].subcuentas[sub].egr+=egr;byCuenta[cuenta].subcuentas[sub].rows.push(row);});const sorted=Object.values(byCuenta).sort((a,b)=>a.num.localeCompare(b.num));const sections={ingresos:sorted.filter(a=>a.cat==='ingresos'),costoVentas:sorted.filter(a=>a.cat==='costoVentas'),gastosOperativos:sorted.filter(a=>a.cat==='gastosOperativos'),impuestos:sorted.filter(a=>a.cat==='impuestos'),noOperativo:sorted.filter(a=>a.cat==='noOperativo')};const totalVentas=sections.ingresos.reduce((s,a)=>s+a.totalIng,0);const totalCosto=sections.costoVentas.reduce((s,a)=>s+a.totalEgr,0);const totalGastos=sections.gastosOperativos.reduce((s,a)=>s+a.totalEgr,0);const totalImpuestos=sections.impuestos.reduce((s,a)=>s+a.totalEgr,0);const totalNoOperativo=sections.noOperativo.reduce((s,a)=>s+(a.totalEgr-a.totalIng),0);const utilidadBruta=totalVentas-totalCosto;const resultadoOperativo=utilidadBruta-totalGastos-totalImpuestos;const resultadoNetoFinanciero=resultadoOperativo-totalNoOperativo;const totalIngresosAll=sorted.reduce((s,a)=>s+a.totalIng,0);const totalEgresosAll=sorted.reduce((s,a)=>s+a.totalEgr,0);const base=type==='economico'?totalVentas:totalIngresosAll;return{sections,base,totalVentas,totalCosto,totalGastos,totalImpuestos,totalNoOperativo,utilidadBruta,resultadoOperativo,resultadoNetoFinanciero,totalIngresosAll,totalEgresosAll};}
 function buildResumenMatrix(type){
+  _currentType=type; // económico/financiero usan colMap (no colMapCxP); fijarlo antes de buildStatementData
   const year=resolveResumenYear();
   const months=[];
   for(let m=0;m<12;m++) months.push(buildStatementData(filterRowsByMonth(rawData[type],type,year,m),type));
@@ -1456,8 +1495,49 @@ function renderOperativa(){
 
 }
 
+const RA_MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+function raCell(imp,pct,extraClass){
+  if(imp==null)return '<td class="ra-cell '+(extraClass||'')+'">—</td>';
+  const sign=imp<0?'neg':(imp>0?'pos':'');
+  const pctTxt=(pct==null)?'':'<span class="ra-pct">'+fmtPct(pct)+'</span>';
+  return '<td class="ra-cell '+sign+' '+(extraClass||'')+'"><b>'+fmt(imp)+'</b>'+pctTxt+'</td>';
+}
+function renderResumenTable(containerId,type,matrix){
+  const body=document.getElementById(containerId);
+  let h='<table class="ra-table"><thead><tr><th class="ra-col-cuenta">Cuenta</th>';
+  RA_MESES.forEach(m=>h+='<th>'+m+'</th>');
+  h+='<th class="ra-col-total">Total Año</th></tr></thead><tbody>';
+  matrix.lines.forEach(line=>{
+    if(line.kind==='hdr'){h+='<tr class="ra-row-hdr"><td class="ra-col-cuenta">'+line.label+'</td><td colspan="13"></td></tr>';return;}
+    let rowClass='',nameCell='';
+    if(line.kind==='account'){rowClass='ra-row-acc';const caret='<span class="ra-caret'+(line.hasSubs?'':' hidden')+'" onclick="event.stopPropagation();toggleResumenSub(this,\''+line.key+'\')">▶</span>';nameCell=caret+'<span class="ra-dot" data-key="'+line.key+'"></span>'+line.label;}
+    else if(line.kind==='subaccount'){rowClass='ra-row-sub" data-parent="'+line.parentKey;nameCell='<span class="ra-dot" data-key="'+line.key+'"></span>'+line.label;}
+    else if(line.kind==='section-total'){rowClass='ra-row-total';nameCell=line.label;}
+    else if(line.kind==='result'){rowClass='ra-row-result';nameCell=line.label;}
+    else if(line.kind==='saldo'){rowClass='ra-row-total';nameCell=line.label;}
+    const clickAttr=line.selectable?(' onclick="toggleResumenChart(\''+type+'\',\''+line.key+'\')"'):'';
+    h+='<tr class="'+rowClass+'"'+clickAttr+'><td class="ra-col-cuenta">'+nameCell+'</td>';
+    for(let m=0;m<12;m++)h+=raCell(line.imp[m],line.pct?line.pct[m]:null);
+    h+=raCell(line.impYear,line.pctY,'ra-col-total');
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  body.innerHTML=h;
+}
 function renderAll(){renderEconomico();renderFinanciero();renderCxPagar();renderOperativa();renderTemporal();renderResumen();}
-function renderResumen(){try{window._resumenMatrix={economico:buildResumenMatrix('economico'),financiero:buildResumenMatrix('financiero')};}catch(e){console.error('renderResumen',e);}}
+function renderResumen(){
+  try{
+    const eco=buildResumenMatrix('economico');
+    const fin=buildResumenMatrix('financiero');
+    window._resumenMatrix={economico:eco,financiero:fin};
+    document.getElementById('ra-eco-year').textContent=eco.year;
+    document.getElementById('ra-fin-year').textContent=fin.year;
+    renderResumenTable('ra-eco-body','economico',eco);
+    renderResumenTable('ra-fin-body','financiero',fin);
+  }catch(e){console.error('renderResumen',e);}
+}
+function toggleResumenSub(caretEl,key){}
+function toggleResumenChart(type,key){}
 
 /* ══════════════════════════════════════════════════
    MÓDULO TEMPORAL OPERATIVA
