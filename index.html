@@ -1536,7 +1536,15 @@ function renderResumen(){
     renderResumenTable('ra-fin-body','financiero',fin);
   }catch(e){console.error('renderResumen',e);}
 }
-function toggleResumenSub(caretEl,key){}
+function toggleResumenSub(caretEl,parentKey){
+  const tr=caretEl.closest('tr');
+  let sib=tr.nextElementSibling;
+  const open=caretEl.classList.toggle('open');
+  while(sib&&sib.classList.contains('ra-row-sub')&&sib.dataset.parent===parentKey){
+    sib.classList.toggle('open',open);
+    sib=sib.nextElementSibling;
+  }
+}
 function toggleResumenChart(type,key){}
 
 /* ══════════════════════════════════════════════════
