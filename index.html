@@ -1015,6 +1015,95 @@ if([...years].includes(_now.getFullYear())){selY.value=selectedYear;}else{select
 function updateMonthOptions(allMonths){const mNames=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];const selM=document.getElementById('filter-month');const current=selM.value;selM.innerHTML='<option value="all">Todos</option>';let filtered=[...allMonths];if(selectedYear!=='all')filtered=filtered.filter(m=>m.startsWith(selectedYear));filtered.sort().reverse().forEach(mk=>{const[y,m]=mk.split('-');selM.innerHTML+='<option value="'+mk+'">'+mNames[parseInt(m)-1]+' '+y+'</option>';});if([...selM.options].some(o=>o.value===current))selM.value=current;}
 function updatePeriodUI(){const isCustom=document.getElementById('filter-custom-toggle').value==='on';document.getElementById('filter-year').closest('.filter-group').style.display=isCustom?'none':'';document.getElementById('filter-month').closest('.filter-group').style.display=isCustom?'none':'';['lbl-date-from','lbl-date-to'].forEach(id=>{document.getElementById(id).style.display=isCustom?'':'none';});}
 function buildStatementData(data,type){const byCuenta={};data.forEach(row=>{const cuenta=getCuenta(row);if(!cuenta)return;const cat=classifyAccount(cuenta,type);if(cat==='excluded')return;if(!byCuenta[cuenta])byCuenta[cuenta]={cuenta,cat,num:getAccNum(cuenta),subcuentas:{},totalIng:0,totalEgr:0};const ing=getIng(row),egr=getEgr(row);byCuenta[cuenta].totalIng+=ing;byCuenta[cuenta].totalEgr+=egr;const sub=getSubCuenta(row);if(!byCuenta[cuenta].subcuentas[sub])byCuenta[cuenta].subcuentas[sub]={ing:0,egr:0,rows:[]};byCuenta[cuenta].subcuentas[sub].ing+=ing;byCuenta[cuenta].subcuentas[sub].egr+=egr;byCuenta[cuenta].subcuentas[sub].rows.push(row);});const sorted=Object.values(byCuenta).sort((a,b)=>a.num.localeCompare(b.num));const sections={ingresos:sorted.filter(a=>a.cat==='ingresos'),costoVentas:sorted.filter(a=>a.cat==='costoVentas'),gastosOperativos:sorted.filter(a=>a.cat==='gastosOperativos'),impuestos:sorted.filter(a=>a.cat==='impuestos'),noOperativo:sorted.filter(a=>a.cat==='noOperativo')};const totalVentas=sections.ingresos.reduce((s,a)=>s+a.totalIng,0);const totalCosto=sections.costoVentas.reduce((s,a)=>s+a.totalEgr,0);const totalGastos=sections.gastosOperativos.reduce((s,a)=>s+a.totalEgr,0);const totalImpuestos=sections.impuestos.reduce((s,a)=>s+a.totalEgr,0);const totalNoOperativo=sections.noOperativo.reduce((s,a)=>s+(a.totalEgr-a.totalIng),0);const utilidadBruta=totalVentas-totalCosto;const resultadoOperativo=utilidadBruta-totalGastos-totalImpuestos;const resultadoNetoFinanciero=resultadoOperativo-totalNoOperativo;const totalIngresosAll=sorted.reduce((s,a)=>s+a.totalIng,0);const totalEgresosAll=sorted.reduce((s,a)=>s+a.totalEgr,0);const base=type==='economico'?totalVentas:totalIngresosAll;return{sections,base,totalVentas,totalCosto,totalGastos,totalImpuestos,totalNoOperativo,utilidadBruta,resultadoOperativo,resultadoNetoFinanciero,totalIngresosAll,totalEgresosAll};}
+function buildResumenMatrix(type){
+  const year=resolveResumenYear();
+  const months=[];
+  for(let m=0;m<12;m++) months.push(buildStatementData(filterRowsByMonth(rawData[type],type,year,m),type));
+  const stmtYear=buildStatementData(filterRowsByYear(rawData[type],type,year),type);
+  const baseByMonth=months.map(s=>s.base);
+  const baseYear=stmtYear.base;
+  const lines=[]; const seriesByKey={};
+  const pctOf=(v,base)=> v==null?null : (base>0? v/base*100 : 0);
+  const accAmt=(acc,cat)=>cat==='ingresos'?acc.totalIng:cat==='noOperativo'?(acc.totalEgr-acc.totalIng):acc.totalEgr;
+  const subAmt=(sd,cat)=>cat==='ingresos'?sd.ing:cat==='noOperativo'?(sd.egr-sd.ing):sd.egr;
+  function register(key,label,imp,impYear){
+    const pct=imp.map((v,m)=>pctOf(v,baseByMonth[m]));
+    const pctY=pctOf(impYear,baseYear);
+    seriesByKey[key]={label,imp,pct};
+    return {imp,pct,impYear,pctY};
+  }
+  function addSection(cat,hdrLabel){
+    const accs={};
+    for(let m=0;m<12;m++){
+      months[m].sections[cat].forEach(acc=>{
+        const k=acc.cuenta;
+        if(!accs[k])accs[k]={cuenta:acc.cuenta,num:acc.num,label:getAccLabel(acc.cuenta),imp:Array(12).fill(null),subs:{},impYear:null,subsYear:{}};
+        accs[k].imp[m]=accAmt(acc,cat);
+        Object.entries(acc.subcuentas).forEach(([sn,sd])=>{
+          if(!accs[k].subs[sn])accs[k].subs[sn]=Array(12).fill(null);
+          accs[k].subs[sn][m]=subAmt(sd,cat);
+        });
+      });
+    }
+    stmtYear.sections[cat].forEach(acc=>{const a=accs[acc.cuenta];if(!a)return;a.impYear=accAmt(acc,cat);Object.entries(acc.subcuentas).forEach(([sn,sd])=>{a.subsYear[sn]=subAmt(sd,cat);});});
+    const ordered=Object.values(accs).sort((x,y)=>x.num.localeCompare(y.num));
+    if(ordered.length===0)return false;
+    lines.push({kind:'hdr',label:hdrLabel,cat});
+    ordered.forEach(a=>{
+      const key='acc:'+type+':'+a.cuenta;
+      const sumYear=a.impYear!=null?a.impYear:a.imp.reduce((t,v)=>t+(v||0),0);
+      const s=register(key,a.label,a.imp,sumYear);
+      const subNames=Object.keys(a.subs).sort((x,y)=>{const sx=a.subs[x].reduce((t,v)=>t+(v||0),0),sy=a.subs[y].reduce((t,v)=>t+(v||0),0);return Math.abs(sy)-Math.abs(sx);});
+      lines.push({kind:'account',label:a.label,key,selectable:true,hasSubs:subNames.length>0,imp:s.imp,pct:s.pct,impYear:s.impYear,pctY:s.pctY});
+      subNames.forEach(sn=>{
+        const skey='sub:'+type+':'+a.cuenta+'||'+sn;
+        const subYear=(a.subsYear&&a.subsYear[sn]!=null)?a.subsYear[sn]:a.subs[sn].reduce((t,v)=>t+(v||0),0);
+        const ss=register(skey,sn,a.subs[sn],subYear);
+        lines.push({kind:'subaccount',label:sn,key:skey,parentKey:key,selectable:true,imp:ss.imp,pct:ss.pct,impYear:ss.impYear,pctY:ss.pctY});
+      });
+    });
+    return true;
+  }
+  function fieldLine(kind,label,field){
+    const imp=months.map(s=>s[field]);
+    const impYear=stmtYear[field];
+    const key='res:'+type+':'+field;
+    const s=register(key,label,imp,impYear);
+    lines.push({kind,label,key,selectable:true,imp:s.imp,pct:s.pct,impYear:s.impYear,pctY:s.pctY});
+  }
+  addSection('ingresos','INGRESOS');
+  fieldLine('section-total','Total Ingresos', type==='economico'?'totalVentas':'totalIngresosAll');
+  const noun=type==='economico'?'Ventas':'Mercadería';
+  if(addSection('costoVentas','COSTO DE '+(type==='economico'?'VENTAS':'MERCADERÍA'))){
+    fieldLine('section-total','Total Costo de '+noun,'totalCosto');
+    fieldLine('result','Utilidad Bruta','utilidadBruta');
+  }
+  if(addSection('gastosOperativos','GASTOS OPERATIVOS')){
+    fieldLine('section-total','Total Gastos Operativos','totalGastos');
+  }
+  if(addSection('impuestos','IMPUESTOS Y TASAS')){
+    fieldLine('section-total','Total Impuestos','totalImpuestos');
+  }
+  if(type==='economico'){
+    fieldLine('result','Resultado Operativo','resultadoOperativo');
+  }else{
+    fieldLine('result','Resultado Operativo','resultadoOperativo');
+    if(addSection('noOperativo','MOVIMIENTOS NO OPERATIVOS')){
+      fieldLine('section-total','Total Movimientos No Operativos','totalNoOperativo');
+    }
+    fieldLine('result','Resultado Neto Financiero del Período','resultadoNetoFinanciero');
+    fieldLine('section-total','Total Egresos del Período','totalEgresosAll');
+    let saldoIni=0;
+    const yStart=new Date(year,0,1,0,0,0);
+    rawData.financiero.forEach(r=>{if(selectedSucursal!=='all'&&getSucursal(r)!==selectedSucursal)return;const d=parseDate(getDateField(r,'financiero'));if(d&&d<yStart)saldoIni+=getIng(r)-getEgr(r);});
+    let running=saldoIni; const saldoImp=[];
+    for(let m=0;m<12;m++){let net=0;filterRowsByMonth(rawData.financiero,'financiero',year,m).forEach(r=>{net+=getIng(r)-getEgr(r);});running+=net;saldoImp.push(running);}
+    const skey='res:'+type+':saldoFinal';
+    seriesByKey[skey]={label:'Saldo Final del Período',imp:saldoImp,pct:saldoImp.map(()=>null)};
+    lines.push({kind:'saldo',label:'Saldo Final del Período',key:skey,selectable:true,imp:saldoImp,pct:saldoImp.map(()=>null),impYear:running,pctY:null});
+  }
+  return {year,lines,seriesByKey,baseByMonth};
+}
 function renderStatement(containerId,stmtData,type){const body=document.getElementById(containerId);body.innerHTML='';const{sections,base}=stmtData;const pct=v=>base>0?(v/base*100):0;const isEco=type==='economico';const rc=isEco?' with-ref':'';let html='';
 // Referential % map for economico (by account number or name keyword)
 const refMap={'costoVentas':28,'SUELDO':29,'PAPELERA':1.5,'LIMPIEZA':0.5,'BAZAR':1,'COMERCIAL':1.5,'MANTENIMIENTO':2,'OTROS':1,'BANCARIO':0.5,'ALQUILER':8,'IMPUESTO':10,'TASA':10,'resultado':17};
@@ -1367,7 +1456,8 @@ function renderOperativa(){
 
 }
 
-function renderAll(){renderEconomico();renderFinanciero();renderCxPagar();renderOperativa();renderTemporal();}
+function renderAll(){renderEconomico();renderFinanciero();renderCxPagar();renderOperativa();renderTemporal();renderResumen();}
+function renderResumen(){try{window._resumenMatrix={economico:buildResumenMatrix('economico'),financiero:buildResumenMatrix('financiero')};}catch(e){console.error('renderResumen',e);}}
 
 /* ══════════════════════════════════════════════════
    MÓDULO TEMPORAL OPERATIVA
