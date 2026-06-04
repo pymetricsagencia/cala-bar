@@ -1,2 +1,4 @@
 # Brainstorming visual companion artifacts (local only)
 .superpowers/
+# Local tooling (preview server) — no deploy
+.claude/
